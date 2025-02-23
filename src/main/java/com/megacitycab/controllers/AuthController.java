@@ -20,7 +20,7 @@ public class AuthController extends HttpServlet {
         User user = userDAO.authenticate(username, password);
 
         if (user != null) {
-            // ✅ Store the full User object in session
+            // Store the full User object in session
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
             session.setAttribute("role", user.getRole());
@@ -29,7 +29,7 @@ public class AuthController extends HttpServlet {
 
             System.out.println("DEBUG: Authenticated User: " + user.getUsername() + ", Role: " + user.getRole());
 
-            // ✅ Redirect based on role
+            // Redirect based on role
             if ("admin".equals(user.getRole())) {
                 response.sendRedirect("admin_dashboard.jsp");
             } else if ("driver".equals(user.getRole())) {
