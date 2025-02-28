@@ -31,7 +31,9 @@
         <th>Car</th>
         <th>Driver</th>
         <th>Status</th>
+        <th>Estimated Bill</th>
     </tr>
+    <% if (bookings != null && !bookings.isEmpty()) { %>
     <% for (Booking booking : bookings) { %>
     <tr>
         <td><%= booking.getId() %></td>
@@ -48,6 +50,12 @@
             <% } %>
         </td>
         <td><%= booking.getStatus() %></td>
+        <td>LKR <%= booking.getEstimatedBill() %></td>
+    </tr>
+    <% } %>
+    <% } else { %>
+    <tr>
+        <td colspan="7">No bookings found.</td>
     </tr>
     <% } %>
 </table>

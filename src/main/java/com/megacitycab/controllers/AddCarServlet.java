@@ -21,13 +21,12 @@ import java.nio.file.Paths;
         maxRequestSize = 1024 * 1024 * 50    // 50MB
 )
 public class AddCarServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String carName = request.getParameter("car_name");
         String carModel = request.getParameter("car_model");
         String carNumber = request.getParameter("car_number");
         String carType = request.getParameter("car_type");
+        double farePerKm = Double.parseDouble(request.getParameter("fare_per_km"));
 
         // Handle Image Upload
         Part filePart = request.getPart("image");
@@ -42,7 +41,7 @@ public class AddCarServlet extends HttpServlet {
 
         // Save Car Data
         CarDAO carDAO = new CarDAO();
-        Car car = new Car(0, carName, carModel, carNumber, carType, true, imageFileName);
+        Car car = new Car(0, carName, carModel, carNumber, carType, true, imageFileName, farePerKm);
 
         if (carDAO.addCar(car)) {
             response.sendRedirect("manage_cars.jsp?success=Car added successfully");

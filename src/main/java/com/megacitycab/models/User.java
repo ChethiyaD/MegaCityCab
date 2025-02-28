@@ -13,10 +13,10 @@ public class User {
     private int experience;  // Driver experience
     private String status;   // Driver availability status
 
-    // ✅ Default Constructor
+    // Default Constructor
     public User() {}
 
-    // ✅ Constructor for Customers (no experience & status)
+    // Constructor for Customers (no experience & status)
     public User(String username, String password, String role, String name, String address, String phone, String nic, String profilePicture) {
         this.username = username;
         this.password = password;
@@ -30,7 +30,7 @@ public class User {
         this.status = null;   // Customers don't have a status
     }
 
-    // ✅ Constructor for Drivers (includes experience & status)
+    // Constructor for Drivers (includes experience & status)
     public User(String username, String password, String role, String name, String address, String phone, String nic, String profilePicture, int experience, String status) {
         this.username = username;
         this.password = password;
@@ -44,7 +44,7 @@ public class User {
         this.status = status;
     }
 
-    // ✅ Getters and Setters
+    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

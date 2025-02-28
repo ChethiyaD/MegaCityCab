@@ -24,28 +24,62 @@ public class BookCabServlet extends HttpServlet {
             return;
         }
 
-        String customerUsername = (String) session.getAttribute("username");
-        int carId = Integer.parseInt(request.getParameter("car_id"));
-        String pickupLocation = request.getParameter("pickup_location");
-        String dropoffLocation = request.getParameter("dropoff_location");
+        try {
+            String customerUsername = (String) session.getAttribute("username");
+            int carId = Integer.parseInt(request.getParameter("car_id"));
+            String pickupLocation = request.getParameter("pickup_location");
+            String dropoffLocation = request.getParameter("dropoff_location");
 
-        // Find an available driver
-        UserDAO userDAO = new UserDAO();
-        User availableDriver = userDAO.getAvailableDriver();
+            // Retrieve selected car from the database
+            CarDAO carDAO = new CarDAO();
+            Car selectedCar = carDAO.getCarById(carId);
 
-        if (availableDriver == null) {
-            response.sendRedirect("book_cab.jsp?error=No available drivers at the moment");
-            return;
+            if (selectedCar == null) {
+                response.sendRedirect("book_cab.jsp?error=Invalid car selection");
+                return;
+            }
+
+            // Estimate fare based on car and distance
+            double farePerKm = selectedCar.getFarePerKm(); // Uses LKR directly
+            int estimatedDistance = getEstimatedDistance(pickupLocation, dropoffLocation);
+            double estimatedBill = estimatedDistance * farePerKm;
+
+            // Find an available driver
+            UserDAO userDAO = new UserDAO();
+            User availableDriver = userDAO.getAvailableDriver();
+
+            if (availableDriver == null) {
+                response.sendRedirect("book_cab.jsp?error=No available drivers at the moment");
+                return;
+            }
+
+            // Save the booking with the estimated bill
+            BookingDAO bookingDAO = new BookingDAO();
+            boolean success = bookingDAO.createBooking(
+                    new Booking(0, customerUsername, carId, availableDriver.getUsername(),
+                            pickupLocation, dropoffLocation, "Pending", estimatedBill));
+
+            if (success) {
+                response.sendRedirect("view_bookings.jsp?success=Cab booked successfully&bill=LKR " + String.format("%.2f", estimatedBill));
+            } else {
+                response.sendRedirect("book_cab.jsp?error=Booking failed");
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            response.sendRedirect("book_cab.jsp?error=Invalid car selection. Please try again.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("book_cab.jsp?error=Something went wrong. Please try again.");
         }
+    }
 
-        // Save booking
-        BookingDAO bookingDAO = new BookingDAO();
-        boolean success = bookingDAO.createBooking(new Booking(0, customerUsername, carId, availableDriver.getUsername(), pickupLocation, dropoffLocation, "Pending"));
-
-        if (success) {
-            response.sendRedirect("view_bookings.jsp?success=Cab booked successfully");
-        } else {
-            response.sendRedirect("book_cab.jsp?error=Booking failed");
-        }
+    // Dummy method for distance estimation (replace with real logic)
+    private int getEstimatedDistance(String pickup, String dropoff) {
+        // Define sample distances for now
+        if (pickup.equalsIgnoreCase("Kurunegala") && dropoff.equalsIgnoreCase("Colombo")) return 100;
+        if (pickup.equalsIgnoreCase("Kurunegala") && dropoff.equalsIgnoreCase("Polgahawela")) return 15;
+        if (pickup.equalsIgnoreCase("Colombo") && dropoff.equalsIgnoreCase("Kandy")) return 120;
+        return 10; // Default distance if not matched
     }
 }

@@ -18,9 +18,9 @@ public class BookingDAO {
         }
     }
 
-    // Create a booking
+    // Create a booking with estimated bill
     public boolean createBooking(Booking booking) {
-        String query = "INSERT INTO bookings (customer_username, car_id, driver_username, pickup_location, dropoff_location, status) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO bookings (customer_username, car_id, driver_username, pickup_location, dropoff_location, status, estimated_bill) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, booking.getCustomerUsername());
             stmt.setInt(2, booking.getCarId());
@@ -28,6 +28,7 @@ public class BookingDAO {
             stmt.setString(4, booking.getPickupLocation());
             stmt.setString(5, booking.getDropoffLocation());
             stmt.setString(6, booking.getStatus());
+            stmt.setDouble(7, booking.getEstimatedBill()); // Store the estimated bill in DB
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -50,7 +51,8 @@ public class BookingDAO {
                         rs.getString("driver_username"),
                         rs.getString("pickup_location"),
                         rs.getString("dropoff_location"),
-                        rs.getString("status")
+                        rs.getString("status"),
+                        rs.getDouble("estimated_bill") // Retrieve the estimated bill (LKR)
                 ));
             }
         } catch (SQLException e) {
@@ -59,12 +61,12 @@ public class BookingDAO {
         return bookings;
     }
 
-    // Get bookings with driver & car details (Including images)
+    // Get bookings with car & driver details (Including images)
     public List<Booking> getBookingsByCustomer(String username) {
         List<Booking> bookings = new ArrayList<>();
         String query = "SELECT b.id, b.customer_username, b.car_id, c.car_number, c.car_name, c.image AS car_image, " +
                 "u.username AS driver_username, u.profile_picture AS driver_image, " +
-                "b.pickup_location, b.dropoff_location, b.status " +
+                "b.pickup_location, b.dropoff_location, b.status, b.estimated_bill " +  // Added estimated_bill
                 "FROM bookings b " +
                 "JOIN cars c ON b.car_id = c.id " +
                 "LEFT JOIN users u ON b.driver_username = u.username " +
@@ -79,14 +81,15 @@ public class BookingDAO {
                         rs.getInt("id"),
                         rs.getString("customer_username"),
                         rs.getInt("car_id"),
-                        rs.getString("car_number"),  // ✅ Car number
-                        rs.getString("car_name"),    // ✅ Car name
-                        rs.getString("car_image"),   // ✅ Car image
-                        rs.getString("driver_username"),  // ✅ Driver username
-                        rs.getString("driver_image"),  // ✅ Driver image
+                        rs.getString("car_number"),  // Car number
+                        rs.getString("car_name"),    // Car name
+                        rs.getString("car_image"),   // Car image
+                        rs.getString("driver_username"),  // Driver username
+                        rs.getString("driver_image"),  // Driver image
                         rs.getString("pickup_location"),
                         rs.getString("dropoff_location"),
-                        rs.getString("status")
+                        rs.getString("status"),
+                        rs.getDouble("estimated_bill")  // Estimated bill (LKR)
                 ));
             }
         } catch (SQLException e) {

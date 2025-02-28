@@ -48,6 +48,10 @@
         <option value="Hatchback" <%= car.getCarType().equals("Hatchback") ? "selected" : "" %>>Hatchback</option>
     </select><br>
 
+    <label>Fare Per KM (LKR):</label>
+    <input type="number" step="0.01" name="fare_per_km" class="form-control"
+           value="<%= car.getFarePerKm() %>" required><br>
+
     <label>Availability:</label>
     <select name="availability">
         <option value="1" <%= car.isAvailable() ? "selected" : "" %>>Available</option>

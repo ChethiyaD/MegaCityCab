@@ -51,6 +51,7 @@
     <th>Type</th>
     <th>Availability</th>
     <th>Image</th>
+    <th>Fare per KM (Rs.)</th> <!-- ✅ Title updated -->
     <th>Actions</th>
   </tr>
   <% for (Car car : cars) { %>
@@ -63,6 +64,7 @@
     <td>
       <img src="uploads/<%= car.getImage() %>" alt="Car Image" width="50">
     </td>
+    <td><%= car.getFarePerKmLKR() %></td> <!-- ✅ Displaying fare in LKR -->
     <td class="action-buttons">
       <!-- Edit Button -->
       <form action="edit_car.jsp" method="get" style="display:inline;">
@@ -99,6 +101,7 @@
             <option value="SUV">SUV</option>
             <option value="Hatchback">Hatchback</option>
           </select><br>
+          <label>Fare per KM (Rs.):</label> <input type="number" step="0.01" name="fare_per_km" class="form-control" required><br> <!-- ✅ Updated label -->
           <label>Car Image:</label> <input type="file" name="image" class="form-control"><br>
           <button type="submit" class="btn btn-success">Add Car</button>
         </form>

@@ -19,13 +19,14 @@ import java.nio.file.StandardCopyOption;
 public class EditCarServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            // Retrieve car details from the form
-            int carId = Integer.parseInt(request.getParameter("car_id")); // Ensure this is in the form
+            // Retrieve car details from form
+            int carId = Integer.parseInt(request.getParameter("car_id"));
             String carNumber = request.getParameter("car_number");
             String carName = request.getParameter("car_name");
             String carModel = request.getParameter("car_model");
             String carType = request.getParameter("car_type");
             boolean availability = "1".equals(request.getParameter("availability"));
+            double farePerKm = Double.parseDouble(request.getParameter("fare_per_km")); // ✅ New Fare Per KM in LKR
 
             // Handle file upload
             Part filePart = request.getPart("image");
@@ -42,7 +43,7 @@ public class EditCarServlet extends HttpServlet {
 
             // Update car in database
             CarDAO carDAO = new CarDAO();
-            boolean success = carDAO.updateCar(new Car(carId, carName, carModel, carNumber, carType, availability, fileName));
+            boolean success = carDAO.updateCar(new Car(carId, carName, carModel, carNumber, carType, availability, fileName, farePerKm));
 
             if (success) {
                 response.sendRedirect("manage_cars.jsp?success=Car updated successfully");
