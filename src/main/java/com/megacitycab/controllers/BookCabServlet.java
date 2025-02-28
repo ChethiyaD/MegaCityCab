@@ -60,6 +60,9 @@ public class BookCabServlet extends HttpServlet {
                             pickupLocation, dropoffLocation, "Pending", estimatedBill));
 
             if (success) {
+                // Update the driver's status to 'Unavailable' after booking
+                bookingDAO.markDriverAsUnavailable(availableDriver.getUsername());
+
                 response.sendRedirect("view_bookings.jsp?success=Cab booked successfully&bill=LKR " + String.format("%.2f", estimatedBill));
             } else {
                 response.sendRedirect("book_cab.jsp?error=Booking failed");
