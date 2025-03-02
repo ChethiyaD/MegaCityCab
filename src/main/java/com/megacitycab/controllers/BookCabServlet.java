@@ -25,10 +25,21 @@ public class BookCabServlet extends HttpServlet {
         }
 
         try {
+            // Retrieve customer username from session
             String customerUsername = (String) session.getAttribute("username");
-            int carId = Integer.parseInt(request.getParameter("car_id"));
+
+            // Retrieve input parameters from form
+            String carIdStr = request.getParameter("car_id");
             String pickupLocation = request.getParameter("pickup_location");
             String dropoffLocation = request.getParameter("dropoff_location");
+
+            // Validate input parameters
+            if (carIdStr == null || pickupLocation == null || dropoffLocation == null) {
+                response.sendRedirect("book_cab.jsp?error=Invalid input. Please fill all fields.");
+                return;
+            }
+
+            int carId = Integer.parseInt(carIdStr);
 
             // Retrieve selected car from the database
             CarDAO carDAO = new CarDAO();
@@ -40,8 +51,8 @@ public class BookCabServlet extends HttpServlet {
             }
 
             // Estimate fare based on car and distance
-            double farePerKm = selectedCar.getFarePerKm(); // Uses LKR directly
-            int estimatedDistance = getEstimatedDistance(pickupLocation, dropoffLocation);
+            double farePerKm = selectedCar.getFarePerKm();
+            double estimatedDistance = getEstimatedDistance(pickupLocation, dropoffLocation);
             double estimatedBill = estimatedDistance * farePerKm;
 
             // Find an available driver
@@ -53,11 +64,22 @@ public class BookCabServlet extends HttpServlet {
                 return;
             }
 
-            // Save the booking with the estimated bill
+            // Create a new booking with distance
+            Booking newBooking = new Booking(
+                    0, // ID will be auto-generated
+                    customerUsername,
+                    carId,
+                    availableDriver.getUsername(),
+                    pickupLocation,
+                    dropoffLocation,
+                    "Pending", // Initial status
+                    estimatedBill,
+                    estimatedDistance // Save the estimated distance
+            );
+
+            // Save the booking in the database
             BookingDAO bookingDAO = new BookingDAO();
-            boolean success = bookingDAO.createBooking(
-                    new Booking(0, customerUsername, carId, availableDriver.getUsername(),
-                            pickupLocation, dropoffLocation, "Pending", estimatedBill));
+            boolean success = bookingDAO.createBooking(newBooking);
 
             if (success) {
                 // Update the driver's status to 'Unavailable' after booking
@@ -65,12 +87,12 @@ public class BookCabServlet extends HttpServlet {
 
                 response.sendRedirect("view_bookings.jsp?success=Cab booked successfully&bill=LKR " + String.format("%.2f", estimatedBill));
             } else {
-                response.sendRedirect("book_cab.jsp?error=Booking failed");
+                response.sendRedirect("book_cab.jsp?error=Booking failed. Please try again.");
             }
 
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            response.sendRedirect("book_cab.jsp?error=Invalid car selection. Please try again.");
+            response.sendRedirect("book_cab.jsp?error=Invalid input. Please enter correct values.");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("book_cab.jsp?error=Something went wrong. Please try again.");
@@ -78,7 +100,7 @@ public class BookCabServlet extends HttpServlet {
     }
 
     // Dummy method for distance estimation (replace with real logic)
-    private int getEstimatedDistance(String pickup, String dropoff) {
+    private double getEstimatedDistance(String pickup, String dropoff) {
         // Define sample distances for now
         if (pickup.equalsIgnoreCase("Kurunegala") && dropoff.equalsIgnoreCase("Colombo")) return 100;
         if (pickup.equalsIgnoreCase("Kurunegala") && dropoff.equalsIgnoreCase("Polgahawela")) return 15;

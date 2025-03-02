@@ -31,7 +31,8 @@
         <th>Car</th>
         <th>Driver</th>
         <th>Status</th>
-        <th>Estimated Bill</th>
+        <th>Distance (KM)</th> <!-- Updated Column -->
+        <th>Estimated Bill (LKR)</th> <!-- Updated Column -->
     </tr>
     <% if (bookings != null && !bookings.isEmpty()) { %>
     <% for (Booking booking : bookings) { %>
@@ -50,12 +51,17 @@
             <% } %>
         </td>
         <td><%= booking.getStatus() %></td>
-        <td>LKR <%= booking.getEstimatedBill() %></td>
+
+        <!-- Display 'Pending' if distance is 0.0 -->
+        <td><%= booking.getDistance() > 0 ? booking.getDistance() + " KM" : "Pending" %></td>
+
+        <!-- Display 'Calculating...' if bill is 0.0 -->
+        <td><%= booking.getEstimatedBill() > 0 ? "LKR " + String.format("%.2f", booking.getEstimatedBill()) : "Calculating..." %></td>
     </tr>
     <% } %>
     <% } else { %>
     <tr>
-        <td colspan="7">No bookings found.</td>
+        <td colspan="8">No bookings found.</td>
     </tr>
     <% } %>
 </table>

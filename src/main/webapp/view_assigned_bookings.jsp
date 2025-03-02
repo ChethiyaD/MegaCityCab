@@ -15,13 +15,24 @@
 
     // Get bookings assigned to this driver
     BookingDAO bookingDAO = new BookingDAO();
-    List<Booking> assignedBookings = bookingDAO.getBookingsByDriver(driverUsername); // Get all the bookings assigned to this driver
+    List<Booking> assignedBookings = bookingDAO.getBookingsByDriver(driverUsername);
 %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Assigned Bookings</title>
+    <script>
+        function calculateBill(input) {
+            let row = input.closest("tr");
+            let farePerKm = parseFloat(row.querySelector(".farePerKm").innerText.replace(" LKR", ""));
+            let distance = parseFloat(input.value);
+            if (!isNaN(farePerKm) && !isNaN(distance)) {
+                let billAmount = farePerKm * distance;
+                row.querySelector(".calculatedBill").value = billAmount.toFixed(2);
+            }
+        }
+    </script>
 </head>
 <body>
 <h2>Assigned Bookings</h2>
@@ -38,9 +49,11 @@
         <th>Dropoff Location</th>
         <th>Driver</th>
         <th>Status</th>
-        <th>Fare Per Km</th> <!-- Fare Per Km Column -->
-        <th>Add Bill</th>
+        <th>Fare Per KM</th>
+        <th>Distance (KM)</th>
+        <th>Estimated Bill</th>
         <th>Confirm Booking</th>
+        <th>Cancel Booking</th> <!-- New Cancel Button -->
     </tr>
 
     <% for (Booking booking : assignedBookings) { %>
@@ -55,16 +68,32 @@
         <td><%= booking.getDropoffLocation() %></td>
         <td><%= booking.getDriverUsername() %></td>
         <td><%= booking.getStatus() %></td>
-        <td>
-            <!-- Show Fare Per Km -->
-            <%= booking.getCarId() != 0 ? new CarDAO().getCarById(booking.getCarId()).getFarePerKm() : "N/A" %> LKR
+        <td class="farePerKm">
+            <%= booking.getCarId() != 0 ? new CarDAO().getFarePerKm(booking.getCarId()) : "N/A" %> LKR
         </td>
         <td>
-            <!-- Form to add bill -->
+            <!-- Input for Distance -->
+            <input type="number" name="distance" step="0.01" placeholder="Enter distance" required oninput="calculateBill(this)">
+        </td>
+        <td>
+            <!-- Auto-calculated Bill -->
+            <input type="text" class="calculatedBill" readonly>
+        </td>
+        <td>
+            <!-- Form to confirm booking -->
             <form action="confirm_booking.jsp" method="post">
                 <input type="hidden" name="booking_id" value="<%= booking.getId() %>">
-                <input type="number" name="bill_amount" step="0.01" placeholder="Enter amount" required>
-                <input type="submit" value="Confirm Booking">
+                <input type="hidden" name="fare_per_km" value="<%= booking.getCarId() != 0 ? new CarDAO().getFarePerKm(booking.getCarId()) : "0" %>">
+                <input type="hidden" name="bill_amount" class="calculatedBill">
+                <input type="hidden" name="distance" value="">
+                <input type="submit" value="Confirm Booking" onclick="this.form.distance.value = this.closest('tr').querySelector('input[name=distance]').value; this.form.bill_amount.value = this.closest('tr').querySelector('.calculatedBill').value;">
+            </form>
+        </td>
+        <td>
+            <!-- Cancel Booking Button -->
+            <form action="CancelBookingServlet" method="post">
+                <input type="hidden" name="booking_id" value="<%= booking.getId() %>">
+                <input type="submit" value="Cancel Booking" onclick="return confirm('Are you sure you want to cancel this booking?');">
             </form>
         </td>
     </tr>
