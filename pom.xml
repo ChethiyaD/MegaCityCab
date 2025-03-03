@@ -37,9 +37,15 @@
             <version>5.0.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.27</version>
+        </dependency>
+
+
     </dependencies>
-
-
 
     <build>
         <!-- This ensures the WAR file is named 'MegaCityCab.war' instead of 'MegaCityCab-1.0-SNAPSHOT.war' -->

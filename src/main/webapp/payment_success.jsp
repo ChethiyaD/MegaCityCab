@@ -40,6 +40,9 @@
             font-weight: bold;
         }
     </style>
+
+    <!-- Include jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <h2 class="success-message">Payment Successful!</h2>
@@ -55,7 +58,34 @@
     <tr><td>Status:</td><td><b>Paid</b></td></tr>
 </table>
 
+<!-- Download Bill Button -->
+<button onclick="generatePDF()">Download Bill</button>
+
 <br>
 <a href="view_bookings.jsp">Back to My Bookings</a>
+
+<!-- JavaScript to generate PDF -->
+<script>
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFont("helvetica", "bold");
+        doc.text("MegaCityCab - Invoice", 105, 20, { align: "center" });
+
+        // Add invoice details
+        doc.setFont("helvetica", "normal");
+        doc.text("Booking ID: <%= booking.getId() %>", 20, 40);
+        doc.text("Customer: <%= booking.getCustomerUsername() %>", 20, 50);
+        doc.text("Driver: <%= booking.getDriverUsername() %>", 20, 60);
+        doc.text("Pickup Location: <%= booking.getPickupLocation() %>", 20, 70);
+        doc.text("Dropoff Location: <%= booking.getDropoffLocation() %>", 20, 80);
+        doc.text("Total Paid: LKR <%= String.format("%.2f", totalAmount) %>", 20, 90);
+        doc.text("Status: Paid", 20, 100);
+
+        // Save the PDF
+        doc.save("Invoice_<%= booking.getId() %>.pdf");
+    }
+</script>
 </body>
 </html>

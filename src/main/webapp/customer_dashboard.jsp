@@ -27,7 +27,6 @@
 <ul>
     <li><a href="book_cab.jsp">Book a Cab</a></li>
     <li><a href="view_bookings.jsp">View My Bookings</a></li>
-    <li><a href="view_bill.jsp">View Bill</a></li>
     <li><a href="logout.jsp">Logout</a></li>
 </ul>
 </body>
