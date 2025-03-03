@@ -18,7 +18,7 @@ public class CarDAO {
         }
     }
 
-    //  Get all cars
+    // Get all cars
     public List<Car> getAllCars() {
         List<Car> cars = new ArrayList<>();
         String query = "SELECT * FROM cars";
@@ -44,7 +44,7 @@ public class CarDAO {
         return cars;
     }
 
-    //  Get a specific car by ID
+    // Get a specific car by ID
     public Car getCarById(int carId) {
         String query = "SELECT * FROM cars WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -69,7 +69,7 @@ public class CarDAO {
         return null;
     }
 
-    //  Add a new car
+    // Add a new car
     public boolean addCar(Car car) {
         String query = "INSERT INTO cars (car_name, car_model, car_number, car_type, availability, image, fare_per_km) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -88,7 +88,7 @@ public class CarDAO {
         return false;
     }
 
-    //  Update a car
+    // Update a car
     public boolean updateCar(Car car) {
         String query = "UPDATE cars SET car_name=?, car_model=?, car_type=?, availability=?, image=?, fare_per_km=? WHERE car_number=?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -106,7 +106,7 @@ public class CarDAO {
         return false;
     }
 
-    //  Delete a car
+    // Delete a car
     public boolean deleteCar(String carNumber) {
         String query = "DELETE FROM cars WHERE car_number = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -118,7 +118,7 @@ public class CarDAO {
         return false;
     }
 
-    //  Get only available cars
+    // Get only available cars
     public List<Car> getAvailableCars() {
         List<Car> availableCars = new ArrayList<>();
         String query = "SELECT * FROM cars WHERE availability = 1";
@@ -144,7 +144,7 @@ public class CarDAO {
         return availableCars;
     }
 
-    //  Get fare per km for a car
+    // Get fare per km for a car
     public double getFarePerKm(int carId) {
         String query = "SELECT fare_per_km FROM cars WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -157,5 +157,17 @@ public class CarDAO {
             e.printStackTrace();
         }
         return 0.0; // Default fare if not found
+    }
+
+    // Update car availability (0 = unavailable, 1 = available)
+    public void setCarAvailability(int carId, boolean available) {
+        String query = "UPDATE cars SET availability = ? WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, available ? 1 : 0);
+            stmt.setInt(2, carId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

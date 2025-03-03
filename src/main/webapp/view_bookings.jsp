@@ -19,6 +19,23 @@
 <html>
 <head>
     <title>My Bookings</title>
+    <script>
+        function confirmCancellation(form) {
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                form.submit();
+            }
+        }
+    </script>
+    <style>
+        .cancelled {
+            background-color: #f8d7da;
+            color: red;
+            font-weight: bold;
+        }
+        .no-actions {
+            color: gray;
+        }
+    </style>
 </head>
 <body>
 <h2>My Bookings</h2>
@@ -31,12 +48,14 @@
         <th>Car</th>
         <th>Driver</th>
         <th>Status</th>
-        <th>Distance (KM)</th> <!-- Updated Column -->
-        <th>Estimated Bill (LKR)</th> <!-- Updated Column -->
+        <th>Distance (KM)</th>
+        <th>Estimated Bill (LKR)</th>
+        <th>Actions</th>
     </tr>
+
     <% if (bookings != null && !bookings.isEmpty()) { %>
     <% for (Booking booking : bookings) { %>
-    <tr>
+    <tr class="<%= "Cancelled".equals(booking.getStatus()) ? "cancelled" : "" %>">
         <td><%= booking.getId() %></td>
         <td><%= booking.getPickupLocation() %></td>
         <td><%= booking.getDropoffLocation() %></td>
@@ -50,18 +69,44 @@
             <img src="uploads/<%= booking.getDriverImage() %>" alt="Driver Image" width="80">
             <% } %>
         </td>
-        <td><%= booking.getStatus() %></td>
+        <td>
+            <% if ("Cancelled".equals(booking.getStatus())) { %>
+            <span style="color: red;">Cancelled</span>
+            <% } else { %>
+            <%= booking.getStatus() %>
+            <% } %>
+        </td>
 
-        <!-- Display 'Pending' if distance is 0.0 -->
         <td><%= booking.getDistance() > 0 ? booking.getDistance() + " KM" : "Pending" %></td>
 
-        <!-- Display 'Calculating...' if bill is 0.0 -->
         <td><%= booking.getEstimatedBill() > 0 ? "LKR " + String.format("%.2f", booking.getEstimatedBill()) : "Calculating..." %></td>
+
+        <td>
+            <% if ("Confirmed".equals(booking.getStatus())) { %>
+            <!-- Pay Now Button (Only for Confirmed Bookings) -->
+            <form action="payment_details.jsp" method="get">
+                <input type="hidden" name="booking_id" value="<%= booking.getId() %>">
+                <input type="hidden" name="total_amount" value="<%= booking.getEstimatedBill() %>">
+                <input type="submit" value="Pay Now">
+            </form>
+
+            <!-- Cancel Booking Button -->
+            <form action="CancelBookingByCustomerServlet" method="post" onsubmit="event.preventDefault(); confirmCancellation(this);">
+                <input type="hidden" name="booking_id" value="<%= booking.getId() %>">
+                <input type="submit" value="Cancel Booking">
+            </form>
+            <% } else if ("Cancelled".equals(booking.getStatus())) { %>
+            <span class="no-actions">No Actions</span>
+            <% } else if ("Paid".equals(booking.getStatus())) { %>
+            <span class="no-actions">Paid</span>
+            <% } %>
+        </td>
+
     </tr>
     <% } %>
     <% } else { %>
     <tr>
-        <td colspan="8">No bookings found.</td>
+        <td colspan="9">No bookings found.</td>
     </tr>
     <% } %>
 </table>

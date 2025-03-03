@@ -3,7 +3,7 @@
 
 <%
     CarDAO carDAO = new CarDAO();
-    List<Car> availableCars = carDAO.getAvailableCars(); // Ensure this method exists in CarDAO
+    List<Car> availableCars = carDAO.getAvailableCars(); // Fetch only available cars
 %>
 
 <!DOCTYPE html>
@@ -15,13 +15,22 @@
             var selectedCar = document.getElementById("carSelect");
             var carImage = document.getElementById("carImage");
 
-            var image = selectedCar.options[selectedCar.selectedIndex].getAttribute("data-image");
-            carImage.src = "uploads/" + image;
+            if (selectedCar.value) {
+                var image = selectedCar.options[selectedCar.selectedIndex].getAttribute("data-image");
+                carImage.src = "uploads/" + image;
+            } else {
+                carImage.src = "uploads/default.png"; // Show default if no car selected
+            }
         }
     </script>
 </head>
 <body>
 <h2>Book a Cab</h2>
+
+<% if (availableCars.isEmpty()) { %>
+<p style="color: red;">No available cars at the moment. Please check back later.</p>
+<a href="customer_dashboard.jsp">Back to Dashboard</a>
+<% } else { %>
 
 <form action="BookCabServlet" method="post">
     <label>Pickup Location:</label>
@@ -40,12 +49,15 @@
     </select>
 
     <br>
-    <img id="carImage" src="uploads/<%= availableCars.size() > 0 ? availableCars.get(0).getImage() : "default.png" %>" alt="Car Image" width="150"><br>
+    <img id="carImage" src="uploads/<%= availableCars.get(0).getImage() %>" alt="Car Image" width="150"><br>
 
     <input type="submit" value="Book Now">
 </form>
 
 <br>
 <a href="customer_dashboard.jsp">Back to Dashboard</a>
+
+<% } %>
+
 </body>
 </html>
