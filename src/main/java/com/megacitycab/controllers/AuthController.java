@@ -1,5 +1,3 @@
-package com.megacitycab.controllers;
-
 import com.megacitycab.dao.UserDAO;
 import com.megacitycab.models.User;
 import jakarta.servlet.ServletException;

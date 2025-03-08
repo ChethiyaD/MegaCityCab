@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,7 +21,7 @@ public class AddDriverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String username = request.getParameter("username");
-            String password = request.getParameter("password");
+            String password = request.getParameter("password"); // Capture password
             String name = request.getParameter("name");
             String phone = request.getParameter("phone");
             String nic = request.getParameter("nic");
@@ -28,14 +29,24 @@ public class AddDriverServlet extends HttpServlet {
             String status = request.getParameter("status");
             String role = "driver";
 
-            if (username == null || username.trim().isEmpty() || nic == null || nic.trim().isEmpty()) {
-                response.sendRedirect("manage_drivers.jsp?error=Username and NIC cannot be empty");
+            if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty() ||
+                    nic == null || nic.trim().isEmpty()) {
+                response.sendRedirect("manage_drivers.jsp?error=Username, Password, and NIC cannot be empty");
                 return;
             }
 
             String experienceStr = request.getParameter("experience");
             int experience = (experienceStr != null && !experienceStr.isEmpty()) ? Integer.parseInt(experienceStr) : 0;
 
+            UserDAO userDAO = new UserDAO();
+
+            // Check if username is already taken
+            if (userDAO.isUsernameTaken(username)) {
+                response.sendRedirect("manage_drivers.jsp?error=Username already exists");
+                return;
+            }
+
+            // Handle profile picture upload
             Part filePart = request.getPart("profile_picture");
             String fileName = "default.png";
 
@@ -47,7 +58,6 @@ public class AddDriverServlet extends HttpServlet {
             }
 
             User driver = new User(username, password, role, name, address, phone, nic, fileName, experience, status);
-            UserDAO userDAO = new UserDAO();
 
             if (userDAO.registerDriver(driver)) {
                 response.sendRedirect("manage_drivers.jsp?success=Driver added successfully");
@@ -60,4 +70,3 @@ public class AddDriverServlet extends HttpServlet {
         }
     }
 }
-

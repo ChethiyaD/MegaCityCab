@@ -19,12 +19,7 @@ import java.nio.file.StandardCopyOption;
 public class EditDriverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String username = request.getParameter("username");
-        if (username == null || username.trim().isEmpty()) {
-            response.sendRedirect("manage_drivers.jsp?error=Invalid username");
-            return;
-        }
-
-        // Retrieve form data
+        String password = request.getParameter("password"); // Get password
         String name = request.getParameter("name");
         String phone = request.getParameter("phone");
         String nic = request.getParameter("nic");
@@ -32,18 +27,13 @@ public class EditDriverServlet extends HttpServlet {
         String experienceStr = request.getParameter("experience");
         String status = request.getParameter("status");
 
-        // Convert experience safely
-        int experience = 0;
-        if (experienceStr != null && !experienceStr.isEmpty()) {
-            try {
-                experience = Integer.parseInt(experienceStr);
-            } catch (NumberFormatException e) {
-                response.sendRedirect("manage_drivers.jsp?error=Invalid experience format");
-                return;
-            }
+        if (username == null || username.trim().isEmpty()) {
+            response.sendRedirect("manage_drivers.jsp?error=Invalid username");
+            return;
         }
 
-        // Handle Profile Picture
+        int experience = (experienceStr != null && !experienceStr.isEmpty()) ? Integer.parseInt(experienceStr) : 0;
+
         Part filePart = request.getPart("profile_picture");
         String fileName = null;
         if (filePart != null && filePart.getSize() > 0) {
@@ -53,7 +43,6 @@ public class EditDriverServlet extends HttpServlet {
             Files.copy(filePart.getInputStream(), Paths.get(uploadPath, fileName), StandardCopyOption.REPLACE_EXISTING);
         }
 
-        // Fetch existing driver to keep old image if no new one is uploaded
         UserDAO userDAO = new UserDAO();
         User existingDriver = userDAO.getDriverByUsername(username);
         if (existingDriver == null) {
@@ -65,8 +54,11 @@ public class EditDriverServlet extends HttpServlet {
             fileName = existingDriver.getProfilePicture();
         }
 
-        // Create updated user object
-        User driver = new User(username, "", "driver", name, address, phone, nic, fileName, experience, status);
+        if (password == null || password.trim().isEmpty()) {
+            password = existingDriver.getPassword(); // Keep old password if not changed
+        }
+
+        User driver = new User(username, password, "driver", name, address, phone, nic, fileName, experience, status);
 
         if (userDAO.updateDriver(driver)) {
             response.sendRedirect("manage_drivers.jsp?success=Driver updated successfully");

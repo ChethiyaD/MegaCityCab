@@ -101,5 +101,7 @@
 </table>
 <% } %>
 
+<a href="driver_dashboard.jsp" class="btn btn-secondary mt-3">Back to Dashboard</a>
+
 </body>
 </html>

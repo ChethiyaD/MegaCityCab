@@ -27,7 +27,9 @@
 <ul>
     <li><a href="book_cab.jsp">Book a Cab</a></li>
     <li><a href="view_bookings.jsp">View My Bookings</a></li>
-    <li><a href="logout.jsp">Logout</a></li>
+    <!-- Add a Manage Profile option -->
+    <li><a href="manage_profile.jsp">Manage Profile</a></li>
+    <a href="LogoutServlet" class="btn btn-danger">Logout</a>
 </ul>
 </body>
 </html>

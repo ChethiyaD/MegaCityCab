@@ -26,8 +26,9 @@
 
 <ul>
     <li><a href="view_assigned_bookings.jsp">View Assigned Bookings</a></li>
-    <li><a href="update_booking_status.jsp">Update Booking Status</a></li>
-    <li><a href="logout.jsp">Logout</a></li>
+    <!-- Add a Manage Profile option -->
+    <li><a href="manage_driver_profile.jsp">Manage Profile</a></li>
+    <a href="LogoutServlet" class="btn btn-danger">Logout</a>
 </ul>
 </body>
 </html>

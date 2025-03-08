@@ -377,4 +377,43 @@ public class BookingDAO {
         return false;
     }
 
+    public List<Booking> getAllBookings() {
+        List<Booking> bookings = new ArrayList<>();
+        String query = "SELECT * FROM bookings"; // Get all bookings (all statuses)
+
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                bookings.add(new Booking(
+                        rs.getInt("id"),
+                        rs.getString("customer_username"),
+                        rs.getInt("car_id"),
+                        rs.getString("driver_username"),
+                        rs.getString("pickup_location"),
+                        rs.getString("dropoff_location"),
+                        rs.getString("status"),
+                        rs.getDouble("estimated_bill"),
+                        rs.getDouble("distance")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
+
+    public boolean cancelAdminBooking(int bookingId) {
+        String query = "DELETE FROM bookings WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, bookingId);
+            int rowsDeleted = stmt.executeUpdate();
+            return rowsDeleted > 0;  // Return true if booking was deleted
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
 }

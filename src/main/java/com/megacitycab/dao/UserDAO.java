@@ -230,4 +230,93 @@ public class UserDAO {
         return null;
     }
 
+    // Get a specific user (customer) by username
+    public User getUserByUsername(String username) {
+        String query = "SELECT * FROM users WHERE username = ? AND role = 'customer'";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new User(
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("role"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getString("phone"),
+                        rs.getString("nic"),
+                        rs.getString("profile_picture"),
+                        rs.getInt("experience"),
+                        rs.getString("status")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public boolean updateCustomer(User customer) {
+        String query = "UPDATE users SET name=?, address=?, phone=?, nic=?, profile_picture=? WHERE username=? AND role='customer'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, customer.getName());
+            stmt.setString(2, customer.getAddress() != null ? customer.getAddress() : "");
+            stmt.setString(3, customer.getPhone());
+            stmt.setString(4, customer.getNic() != null ? customer.getNic() : "");
+            stmt.setString(5, customer.getProfilePicture() != null ? customer.getProfilePicture() : "default.png");
+            stmt.setString(6, customer.getUsername());
+
+            System.out.println("DEBUG: Executing Update Query: " + stmt.toString());
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean deleteCustomer(String username) {
+        String query = "DELETE FROM users WHERE username = ? AND role = 'customer'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public List<User> getAllCustomers() {
+        List<User> customers = new ArrayList<>();
+        String query = "SELECT username, password, role, name, address, phone, nic, profile_picture, status FROM users WHERE role = 'customer'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                User customer = new User(
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("role"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getString("phone"),
+                        rs.getString("nic"),
+                        rs.getString("profile_picture"),
+                        0,  // Customers don't have "experience"
+                        rs.getString("status")
+                );
+                customers.add(customer);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
+
+
 }
